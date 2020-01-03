@@ -1,0 +1,11 @@
+.Tilt {
+    background: LINEAR-GRADIENT(TO RIGHT, RGB(255, 147, 0), RGB(98, 154, 157));
+}
+
+.Tilt-inner {
+    text-align: center;
+}
+
+.brain-image {
+    padding-top: 5px;
+}
