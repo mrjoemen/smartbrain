@@ -10,9 +10,10 @@ import Particles from 'react-particles-js'
 import FaceRecognition from './components/FaceRecognition'
 import Clarifai from 'clarifai'
 import Register from './components/Register/Register'
+import ShowAttributes from './components/ShowAttributes';
 
 const app = new Clarifai.App({
-  apiKey: 'ea9a4b58e80648fc9a8f83777a6eadf0' //this key is from clarifai 
+  apiKey: 'b3d319f1ade24d80a7afb9b0b5982401' //this key is from clarifai 
 })
 
 class App extends Component {
@@ -29,7 +30,8 @@ class App extends Component {
         email: '',
         rank: 0,
         joined: ''
-      }
+      },
+      attributes: {}
     }
   }
 
@@ -39,6 +41,7 @@ class App extends Component {
     const width = Number(image.width)
     const height = Number(image.height)
     console.log(face)
+    console.log(response)
     console.log(width, height)
     return {
       leftColumn: face.left_col * width,
@@ -48,9 +51,29 @@ class App extends Component {
     }
   }
   
-
+  getAttributes = (response) => {
+    const { face } = response.outputs[0].data.regions[0].data
+    const age = face.age_appearance.concepts[0].name;
+    const agePercent = face.age_appearance.concepts[0].value;
+    const gender = face.gender_appearance.concepts[0].name;
+    const genderPercent = face.gender_appearance.concepts[0].value;
+    const eth = face.multicultural_appearance.concepts[0].name;
+    const ethPercent = face.multicultural_appearance.concepts[0].value;
+    console.log(age, agePercent)
+    console.log(gender, genderPercent)
+    console.log(eth, ethPercent)
+    const attributes = {
+      age : age,
+      agePercent: agePercent,
+      gender: gender,
+      genderPercent: genderPercent,
+      eth: eth,
+      ethPercent: ethPercent
+    }
+    this.setState({attributes: attributes})
+  }
   displayFaceBox = (box) => {
-    console.log(box) // displays the new box object after the calculations from faceLocations
+    //console.log(box) // displays the new box object after the calculations from faceLocations
     this.setState({box: box})
   }
 
@@ -63,7 +86,7 @@ class App extends Component {
     app.models.predict(Clarifai.DEMOGRAPHICS_MODEL, this.state.input)
     .then(response =>  {
       if (response) {
-        fetch("http://localhost:3000/image", {
+        fetch("https://damp-inlet-99095.herokuapp.com/image", {
           method: 'PUT', //we have to make sure that this is a post, since in our backend we use a post rather than a GET
           headers: {"Content-Type": "application/json"}, //setting info to json format
           body: JSON.stringify({ // this allows us to take a js object and converts it into JSON format
@@ -76,6 +99,7 @@ class App extends Component {
         }) 
       }
       this.displayFaceBox(this.faceLocation(response))
+      this.getAttributes(response)
     }) // must use .then here for this to work rather than a regular function
     .catch(err => console.log(err))
 
@@ -149,6 +173,7 @@ class App extends Component {
           <Logo />
           <Rank name = {this.state.user.name} rank = {this.state.user.rank} />
           <ImageLink onInputChange ={this.onInputChange} onSubmit={this.onSubmit} />
+          {Object.entries(this.state.attributes).length === 0 && this.state.attributes.constructor === Object ? null : <ShowAttributes attributes = {this.state.attributes} />}
           <FaceRecognition box = {this.state.box} imgURL={this.state.imgURL} />
         </div> : //otherwise
         (

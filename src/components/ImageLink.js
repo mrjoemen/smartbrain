@@ -9,7 +9,7 @@ function ImageLink({ onInputChange, onSubmit }) {
             </p>
             <div className = 'center'>
                 <div className = 'center form pa4 br3 shadow-5'>
-                    <input type='text' className = 'f4 pa2 w-70 center' onChange = {onInputChange}/>
+                    <input type='text' className = 'f4 pa2 w-70 center' placeholder= "URL..." onChange = {onInputChange}/>
                     <button className = 'w-30 grow f4 link ph3 pv2 dib white bg-light-blue' onClick = {onSubmit}>detect</button>
                 </div>
             </div>
